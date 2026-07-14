@@ -1,0 +1,8 @@
+server:
+  port: 9001
+  tomcat:
+    connection-timeout: 2s # 该属性定义了Tomcat从接收到一个来自客户端的TCP连接到实际接收到HTTP请求所能等待的时间限制,有助于防范Dos攻击.
+    keep-alive-timeout: 15s # 等待新的HTTP请求时连接保持打开状态的时长
+    threads:
+      max: 50  # 配置请求处理线程的最大数量
+      min-spare: 5 # 保持运行的最小线程数量,服务器启动时要创建的线程数量

@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<configuration>
+
+    <!-- 1. 定义根日志级别 -->
+    <root level="INFO">
+        <appender-ref ref="STDOUT" />
+<!--        <appender-ref ref="ASYNC_FILE" />-->
+    </root>
+
+    <!-- 2. 定义输出到控制台的日志格式和目标 -->
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>[%date{yyyy-MM-dd HH:mm:ss.SSS}] [%X{traceId}] [%thread] %-5level %logger{20} - [%method,%line] - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <!-- 3. 定义输出到文件的日志格式和目标 -->
+<!--    <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">-->
+<!--        <file>/data/log/cloud-native.log</file>-->
+<!--        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">-->
+<!--            <fileNamePattern>/data/log/cloud-native.%d{yyyy-MM-dd}.%i.log</fileNamePattern>-->
+<!--            <maxFileSize>256MB</maxFileSize>-->
+<!--            <maxHistory>7</maxHistory>-->
+<!--            <totalSizeCap>5GB</totalSizeCap>-->
+<!--        </rollingPolicy>-->
+<!--        <encoder>-->
+<!--            <pattern>[%date{yyyy-MM-dd HH:mm:ss.SSS}] [%X{traceId}] [%thread] %-5level %logger{20} - [%method,%line] - %msg%n</pattern>-->
+<!--        </encoder>-->
+<!--    </appender>-->
+
+<!--    <appender name="ASYNC_FILE" class="ch.qos.logback.classic.AsyncAppender">-->
+<!--        <queueSize>1024</queueSize>-->
+<!--        <discardingThreshold>0</discardingThreshold>-->
+<!--        <appender-ref ref="FILE"/>-->
+<!--    </appender>-->
+
+</configuration>
