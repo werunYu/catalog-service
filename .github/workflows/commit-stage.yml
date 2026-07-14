@@ -1,0 +1,49 @@
+# 工作流的名称
+name: Commit Stage
+# 每当有新的代码被推送到仓库时,该工作流就会被触发
+on: push
+jobs:
+  build:
+    # 该job适宜人类阅读的名称
+    name: Build and Test
+    # 该job应该再哪种机器上运行
+    runs-on: ubuntu-22.04
+    # 授予该job的权限
+    permissions:
+      # 检出当前Git仓库的权限
+      contents: read
+      # 提交安全事件到Github的权限
+      security-events: write
+    # 每个job都由按顺序执行的step(步骤)组成,每个步骤可以是一个shell命令或者一个action.
+    steps:
+      # 检出当前的Git仓库
+      - name: Checkout source code
+        uses: actions/checkout@v3
+      # 安装和配置Java运行时
+      - name: Set up JDK
+        uses: actions/setup-java@v3
+        # 定义使用哪个版本、发行版和缓存类型
+        with:
+          distribution: temurin
+          java-version: 21
+          cache: maven
+      - name: Build, unit tests and integration tests
+        run: mvn -B verify
+      # 使用grype扫描代码库的漏洞
+      - name: Code vulnerability scanning
+        uses: anchore/scan-action@v3
+        # 为当前的步骤分配一个标识符,以便于后续步骤引用它
+        id: scan
+        with:
+          # 检出仓库路径
+          path: "${{ github.workspace }}"
+          # 遇到安全漏洞,是否将当前构建设置为失败
+          fail-build: false
+          # 视为错误的最低安全种类
+          severity-cutoff: high
+      - name: Upload vulnerability report
+        uses: github/codeql-action/upload-sarif@v3
+        if: success() || failure()
+        with:
+          # 从上一个步骤的输出中获取报告
+          sarif_file: ${{ steps.scan.outputs.sarif }}
