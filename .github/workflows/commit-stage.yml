@@ -31,7 +31,7 @@ jobs:
         run: mvn -B verify
       # 使用grype扫描代码库的漏洞
       - name: Code vulnerability scanning
-        uses: anchore/scan-action@v3
+        uses: anchore/scan-action@v5
         # 为当前的步骤分配一个标识符,以便于后续步骤引用它
         id: scan
         with:
@@ -43,7 +43,7 @@ jobs:
           severity-cutoff: high
       - name: Upload vulnerability report
         uses: github/codeql-action/upload-sarif@v3
-        if: success() || failure()
+        if: (success() || failure()) && steps.scan.outputs.sarif != ''
         with:
           # 从上一个步骤的输出中获取报告
           sarif_file: ${{ steps.scan.outputs.sarif }}
