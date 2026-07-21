@@ -6,3 +6,50 @@ server:
     threads:
       max: 50  # 配置请求处理线程的最大数量
       min-spare: 5 # 保持运行的最小线程数量,服务器启动时要创建的线程数量
+
+polar:
+  greeting: Welcome to the local book catalog!
+
+spring:
+  application:
+    name: catalog-service
+  # 如果不配置的话,启动会报错 或者将这两个配置之一改为false spring.cloud.config.enabled=false或spring.cloud.config.import-check.enabled=false
+  config:
+    import: "optional:configserver:"
+  cloud:
+    config:
+      uri: http://localhost:8888
+      # 等待连接配置服务器的超时时间
+      request-connect-timeout: 5000
+      # 等待从配置服务器读取配置数据的超时时间
+      request-read-timeout: 5000
+      # 将连接至配置服务器的失败设置为致命错误
+      fail-fast: false
+      retry:
+        # 最大尝试次数
+        max-attempts: 6
+        # Backoff的初始尝试间隔
+        initial-interval: 1000
+        # Backoff的最大重视间隔
+        max-interval: 2000
+        # 计算下一次间隔的乘数
+        multiplier: 1.1
+  datasource:
+    username: user
+    password: password
+    url: jdbc:postgresql://localhost:5432/polardb_catalog
+    hikari:
+      connection-timeout: 2000
+      maximum-pool-size: 5
+  # 默认情况下, Spring Data只会在使用嵌入式、内存数据库时加载schema.sql. 我们使用的是PostgreSQL,所以需要显式启用该功能
+#  sql:
+#    init:
+#      mode: always
+management:
+  endpoints:
+    web:
+      exposure:
+        # 通过HTTP对外暴露端点
+        include:
+          - health
+          - refresh

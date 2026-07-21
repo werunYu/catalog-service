@@ -1,2 +1,49 @@
-Grype 使用Grype来扫描Java代码库和容器镜像的漏洞.
+1.Grype 使用Grype来扫描Java代码库和容器镜像的漏洞.
 Github仓库地址: https://github.com/anchore/grype
+
+2.在IDEA中使用spring-boot插件运行时 通过该命令指定profile mvn spring-boot:run -Dspring-boot.run.profiles=testdata
+
+
+3.通过命令行配置应用
+  示例命令:ava -jar catalog-service-1.0-SNAPSHOT.jar --polar.greeting="Welcome to the catalog from CLI"
+
+4.通过JVM系统属性配置应用
+  示例命令:ava -Dpolar.greeting="Welcome to the catalog from JVM" -jar catalog-service-1.0-SNAPSHOT.jar
+
+5.通过环境变量配置应用
+  环境变量是在操作系统中定义的,通常可以用来实现外部化配置.
+  在Spring中,我们不需要显式地从周围系统中读取环境变量.Spring会在启动阶段自动读取它们,并将其添加到Spring Environment对象中.
+
+
+
+### Spring Cloud Config如何为每个应用解析正确的配置数据呢?
+该库依赖三个参数来识别配置特定的应用时应该使用哪个属性文件
+1.{application}: 通过spring.application.name属性定义的应用名称
+2.{profile}:由spring.profiles.active属性定义的某个处于激活状态的profile
+3.{label}:由特定的配置数据仓库所定义的判别器.在Git情况下,它可以时标签、分支名称或提交ID.它对于识别配置文件的版本集是非常有用的.
+根据需求,我们可以使用不同的组合来组织目录结构,例如:
+/{application}/application-{profile}.yml
+/{application}/application.yml
+/{application}-{profile}.yml
+/{application}.yml
+## 这两个主要用于定义所有应用的默认值.当没有更具体的属性源时,它们会作为备用的值.
+/application-{profile}.yml
+/application.yml
+
+
+应用服务和数据服务之前的差异可以通过云基础设施的三个基本构建块进行可视化展示,即计算、存储和网络。
+应用服务会使用计算和网络资源,因为它们是无状态的.
+数据服务是有状态的,还需要使用存储来持久化状态.
+
+
+在Spring Data中,主要有两种声明自定义查询的方案:
+1.使用@Query注解来提供类似SQL语句,它们会被对应的方法执行.
+2.根据特定的命名约定来定义查询方法.一般而言,方法名会由多个组成部分构建而成.
+  通过遵循特定的命名约定,我们可以向资源库添加自定义的查询并让Spring Data为我们提供实现,该命名约定由多个构建块组成
+  |资源方法的构建基块|样例|
+  |行为           |find、exist、delete、count
+  |限制           |One、All、First10
+  |-             |By
+  |属性表达式      |findByIsbn、findByTitleAndAuthor、findByAuthorOrPrice
+  |对比           |findByTitleContaining、findByIsbnEndingWith、findByPriceLessThan
+  |排序操作符      |orderByTitleAsc、orderByTitleDesc

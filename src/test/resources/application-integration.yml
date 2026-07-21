@@ -1,0 +1,9 @@
+spring:
+  cloud:
+    config:
+      # 直接关闭Spring Cloud Config Client功能
+      enabled: false
+  config:
+    import: ""
+  datasource:
+    url: jdbc:tc:postgresql:18.4-trixie:///
