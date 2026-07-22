@@ -210,7 +210,7 @@
                         <env>
                             <BP_JVM_VERSION>21.*</BP_JVM_VERSION>
                         </env>
-                        <publish>true</publish>
+                        <publish>false</publish>
                     </image>
                     <docker>
                         <publishRegistry>
