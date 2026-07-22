@@ -204,6 +204,23 @@
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <version>${spring.boot.version}</version>
+                <configuration>
+                    <image>
+                        <name>ghcr.io/werunyu/${project.name}</name>
+                        <env>
+                            <BP_JVM_VERSION>21.*</BP_JVM_VERSION>
+                        </env>
+                        <publish>true</publish>
+                    </image>
+                    <docker>
+                        <publishRegistry>
+                            <!-- 从外部传入,不写死在pom文件中 -->
+                            <username>${registryUsername}</username>
+                            <password>${registryToken}</password>
+                            <url>${registryUrl}</url>
+                        </publishRegistry>
+                    </docker>
+                </configuration>
                 <executions>
                     <execution>
                         <!-- 需要执行repackage 否则jar -jar会提示没有主清单属性 -->

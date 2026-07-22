@@ -2,6 +2,10 @@
 name: Commit Stage
 # 每当有新的代码被推送到仓库时,该工作流就会被触发
 on: push
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: werunyu/catalog-service
+  VERSION: latest
 jobs:
   build:
     # 该job适宜人类阅读的名称
@@ -18,10 +22,10 @@ jobs:
     steps:
       # 检出当前的Git仓库
       - name: Checkout source code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       # 安装和配置Java运行时
       - name: Set up JDK
-        uses: actions/setup-java@v3
+        uses: actions/setup-java@v4
         # 定义使用哪个版本、发行版和缓存类型
         with:
           distribution: temurin
@@ -47,3 +51,50 @@ jobs:
         with:
           # 从上一个步骤的输出中获取报告
           sarif_file: ${{ steps.scan.outputs.sarif }}
+  package:
+    name: Package and Publish
+    # 只在main分支上运行该job
+    if: ${{ github.ref == 'refs/heads/main' }}
+    # 只有当build job成功完成时,才会运行该job
+    needs: [ build ]
+    runs-on: ubuntu-22.04
+    permissions:
+      # 检出当前Git仓库的权限
+      contents: read
+      # 上传镜像到Github Container Registry的权限
+      packages: write
+      # 提交安全事件到Github的权限
+      security-events: write
+    steps:
+      - name: Checkout source code
+        uses: actions/checkout@v4
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+          cache: maven
+      - name: Build container image
+        run: |
+          mvn spring-boot:build-image \
+          -Dspring-boot.build-image.imageName=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.VERSION }}
+      - name: OCI image vulnerability scanning
+        uses: anchore/scan-action@v3
+        id: scan
+        with:
+          image: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.VERSION }}
+          fail-build: false
+          severity-cutoff: high
+      - name: Upload vulnerability report
+        uses: github/codeql-action/upload-sarif@v3
+        if: success() || failure()
+        with:
+          sarif_file: ${{ steps.scan.outputs.sarif }}
+      - name: Log into container registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Publish container image
+        run: docker push ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.VERSION }}

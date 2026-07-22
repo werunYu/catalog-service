@@ -5,10 +5,10 @@ Github仓库地址: https://github.com/anchore/grype
 
 
 3.通过命令行配置应用
-  示例命令:ava -jar catalog-service-1.0-SNAPSHOT.jar --polar.greeting="Welcome to the catalog from CLI"
+  示例命令:java -jar catalog-service-1.0-SNAPSHOT.jar --polar.greeting="Welcome to the catalog from CLI"
 
 4.通过JVM系统属性配置应用
-  示例命令:ava -Dpolar.greeting="Welcome to the catalog from JVM" -jar catalog-service-1.0-SNAPSHOT.jar
+  示例命令:java -Dpolar.greeting="Welcome to the catalog from JVM" -jar catalog-service-1.0-SNAPSHOT.jar
 
 5.通过环境变量配置应用
   环境变量是在操作系统中定义的,通常可以用来实现外部化配置.
@@ -47,3 +47,15 @@ Github仓库地址: https://github.com/anchore/grype
   |属性表达式      |findByIsbn、findByTitleAndAuthor、findByAuthorOrPrice
   |对比           |findByTitleContaining、findByIsbnEndingWith、findByPriceLessThan
   |排序操作符      |orderByTitleAsc、orderByTitleDesc
+
+
+
+容器镜像是执行有序指令序列的产物,其中每条指令都会形成一个层.每个镜像都由若干层组成.每个层代表了对应的指令所做的修改.最终的制品,也就是镜像,能够以容器的形式运行.
+容器镜像中所有的层都是只读的.一旦它们被应用,我们就无法修改它们.如果需要变更某些东西的话,我们可以通过在它上面使用一个新的层来实现.
+当镜像以容器的方式运行时,最后会有一个层自动运行在所有现存的层上,这个层叫做"容器层".它是唯一一个可写入的层,用来存储容器自身执行过程中所创建的数据.在运行时,这个层
+可能被用来生成应用运行所需的文件,或者存储临时数据.即使它是可写入的,但也需要记住它是不稳定的:一旦我们删除了容器,存储在这个层上的所有内容都会丢失.
+
+mvn spring-boot:build-image -Dspring-boot.build-image.imageName=ghcr.io/werunyu/catalog-service -Dspring-boot.build-image.publish=true -DregistryUrl=ghcr.io -DregistryUsername=werunyu -DregistryToken=AccessToken
+
+
+mvn help:evaluate -Dexpression=registryUsername -DregistryUsername=werunyu -DforceStdout
