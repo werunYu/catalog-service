@@ -1,5 +1,7 @@
 server:
   port: 9001
+  # 启用优雅关机
+  shutdown: graceful
   tomcat:
     connection-timeout: 2s # 该属性定义了Tomcat从接收到一个来自客户端的TCP连接到实际接收到HTTP请求所能等待的时间限制,有助于防范Dos攻击.
     keep-alive-timeout: 15s # 等待新的HTTP请求时连接保持打开状态的时长
@@ -13,6 +15,9 @@ polar:
 spring:
   application:
     name: catalog-service
+  lifecycle:
+    # 定义宽限期为15秒  给予应用多长的时间来处理进行中的请求,宽限期结束后,即便可能还有正在进行中的请求,应用也会终止
+    timeout-per-shutdown-phase: 15s
   # 如果不配置的话,启动会报错 或者将这两个配置之一改为false spring.cloud.config.enabled=false或spring.cloud.config.import-check.enabled=false
   config:
     import: "optional:configserver:"

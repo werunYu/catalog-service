@@ -1,0 +1,46 @@
+# Deployment对象的API版本
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  # Deployment的名称
+  name: catalog-service
+  labels:
+    # Deployment附加的一组标签
+    app: catalog-service
+spec:
+  # 应该部署的Pod副本数量
+#  replicas: 2
+  # 定义用来选择Pod的标签,以便于进行扩展
+  selector:
+    matchLabels:
+      app: catalog-service
+  # 创建Pod的模板
+  template:
+    # Pod对象所附加的标签.它们应该与selector所使用的值相匹配
+    metadata:
+      labels:
+        app: catalog-service
+    spec:
+      # Pod中容器的列表,在本例中只有一个容器
+      containers:
+        # Pod的名称
+        - name: catalog-service
+          # 运行容器所使用的镜像.这里没有定义标签,因此会隐式使用latest
+          image: catalog-service
+          # 只有本地镜像不存在时,Kubernetes才会从容器注册中心拉取镜像
+          imagePullPolicy: IfNotPresent
+          lifecycle:
+            # 让Kubernetes在发送SIGTERM信号到Pod之前等待5秒钟
+            preStop:
+              exec:
+                command: ["sh", "-c", "sleep 5"]
+          ports:
+            # 容器对外暴露的端口
+            - containerPort: 9001
+          env:
+            - name: BPL_JVM_THREAD_COUNT
+              value: "50"
+            - name: SPRING_DATASOURCE_URL
+              value: jdbc:postgresql://polar-postgres/polardb_catalog
+            - name: SPRING_PROFILES_ACTIVE
+              value: testdata

@@ -1,0 +1,61 @@
+Kubernetes客户端使用API与Kubernetes控制平面进行交互,负责创建和管理Kubernetes集群中的对象.
+
+集群:
+  运行容器化应用的一组节点.它托管控制平面,并且由一个或多个工作者节点组成.
+控制平面:
+  暴露API和接口的集群组件,负责定义、部署和管理Pod的声明周期.它包含了实现典型编排器特性的所有基本元素,包括集群管理、调度和健康监控.
+工作者节点:
+  物理机或虚拟机,负责提供像CPU、内存、网络和存储这样的能力,以支持容器运行并连接至网络.
+Pod:
+  最小的部署单元,包装了应用容器.
+
+通过如下命令,我们可以得到集群中所有节点的列表:
+kubectl get nodes
+
+我们可以使用相同的Kubernetes客户端(kubectl)与不同的本地或远程集群交互.如下命令将会列出所有可以进行交互的context:
+kubectl config get-contexts
+
+可以通过运行命令检查当前使用的是哪个context:
+kubectl config current-context
+
+修改当前的context:
+kubectl config use-context polar
+
+停掉集群
+minikube stop --profile polar
+
+启动集群
+minikube start --profile polar
+
+删除集群
+minikube delete --profile polar
+
+
+Pod:
+Pod是Kubernetes中最小的部署单元,当从Docker转向Kubernetes时,我们需要从管理容器切换为管理Pod.
+
+Deployment:
+Deployment是管理无状态、多副本应用的生命周期的对象.每个副本表现为一个Pod.副本分布在集群的节点上,以实现更好的韧性.
+Deployment对象有一个很重要和很有价值的特征。我们可以使用这些特征来部署应用、无停机进行滚动更新、在出现错误时回滚至之前的版本、暂停和恢复升级。
+Deployment还能让我们管理副本。它们使用名为ReplicaSet的对象确保集群中始终有期望数量的Pod处于运行状态。如果其中有一个Pod崩溃了,集群会自动创建一个新的Pod来取代它.
+
+
+在Kubernetes中，描述对象期望状态的推荐方式是使用清单文件，它通常会以YAML格式进行声明。
+Kubernetes清单通常由四个主要部分组成
+1.apiVersion定义了特定对象表述的版本化模式.像Pod和Service这样的核心资源所遵循的版本化模式只包含一个版本号(如v1)。像Deployment或ReplicaSet这样的其他资源所遵循的版本化模式包含一个群组和版本号(如app/v1)
+2.kind用于声明我们想要创建的Kubernetes对象类型，比如Pod、ReplicaSet、Deployment或Service.   可以使用kubectl api-resources命令列出集群支持的所有对象
+3.metadata提供了我们想要创建对象的详情,包括名称和一组用于进行分类的标签(键值对)。
+4.spec部分因对象类型不同而有所差异,是用来声明期望状态的配置
+
+
+默认情况下,minikube不会访问本地的容器镜像,所以它无法找到我们刚刚为Catalog-Service构建的镜像,因此我们可以手动将其导入本地集群:
+minikube image load catalog-service --profile polar
+
+
+Kubernetes Service能够让我们通过一个接口暴露一组Pod,其他应用可以通过这个接口,而无须知道Pod实例的详情.这种模式为应用提供了透明的服务发现和负载均衡功能.
+存在不同类型的Service类型,这取决于你想要为应用实现哪种访问策略.默认也是最常用的类型是ClusterIP,它会暴露一组Pod到集群中.
+ClusterIP Service是由四部分信息定义的:
+1.用于匹配所有目标Pod的标签(selector)，Service会将匹配的Pod暴露出去
+2.Service所使用的网络协议
+3.Service所监听的端口,我们会为所有的Service使用80端口
+4.targetPort，这是目标Pod所暴露的端口,Service会将请求转发到该端口上

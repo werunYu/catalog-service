@@ -1,0 +1,22 @@
+# 使用YAML定义Service清单
+apiVersion: v1
+kind: Service
+metadata:
+  # Service的名称,它必须是一个合法的DNS名称
+  name: catalog-service
+  labels:
+    # 该Service附加的标签
+    app: catalog-service
+spec:
+  # Service的类型
+  type: ClusterIP
+  selector:
+    # 用来匹配目标Pod的标签,该Service会暴露这些Pod
+    app: catalog-service
+  ports:
+    # 该Service使用的网络协议
+    - protocol: TCP
+      # Service暴露的端口
+      port: 80
+      # Service的目标Pod所暴露的端口
+      targetPort: 9001
